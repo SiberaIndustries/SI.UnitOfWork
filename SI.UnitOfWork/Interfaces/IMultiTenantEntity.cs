@@ -2,6 +2,5 @@
 {
     public interface IMultiTenantEntity
     {
-        const string PropertyName = "_TenantId";
     }
 }

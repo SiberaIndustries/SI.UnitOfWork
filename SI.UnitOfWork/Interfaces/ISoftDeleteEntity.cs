@@ -2,6 +2,5 @@
 {
     public interface ISoftDeleteEntity
     {
-        const string PropertyName = "_IsDeleted";
     }
 }

@@ -12,6 +12,12 @@ namespace SI.UnitOfWork.Common
 {
     public class EFContext : DbContext, IDbContext
     {
+        public const string IAuditableEntity_CreatedByPropertyName = "_CreatedBy";
+        public const string IAuditableEntity_CreatedPropertyName = "_CreatedAt";
+        public const string IAuditableEntity_LastModifiedByPropertyName = "_LastModifiedBy";
+        public const string IAuditableEntity_LastModifiedPropertyName = "_LastModifiedAt";
+        public const string IMultiTenantEntity_TenantIdPropertyName = "_TenantId";
+        public const string ISoftDeleteEntity_IsDeletedPropertyName = "_IsDeleted";
         private EntityMarker entityMarker;
         private IIdentityProvider? tenantProvider;
         private IIdentityProvider? userProvider;
@@ -80,30 +86,30 @@ namespace SI.UnitOfWork.Common
             if (interfaces.Contains(typeof(ISoftDeleteEntity)) && interfaces.Contains(typeof(IMultiTenantEntity)))
             {
                 entityMarker |= EntityMarker.HasSoftDeletionEntities;
-                entityTypeBuilder.Property(IMultiTenantEntity.PropertyName);
-                entityTypeBuilder.Property<bool>(ISoftDeleteEntity.PropertyName);
-                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntity.PropertyName) && EF.Property<Guid>(x, IMultiTenantEntity.PropertyName) == GetTenantId());
+                entityTypeBuilder.Property(IMultiTenantEntity_TenantIdPropertyName);
+                entityTypeBuilder.Property<bool>(ISoftDeleteEntity_IsDeletedPropertyName);
+                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntity_IsDeletedPropertyName) && EF.Property<Guid>(x, IMultiTenantEntity_TenantIdPropertyName) == GetTenantId());
             }
             else if (interfaces.Contains(typeof(ISoftDeleteEntity)))
             {
                 entityMarker |= EntityMarker.HasSoftDeletionEntities | EntityMarker.HasMultiTenantEntities;
-                entityTypeBuilder.Property<bool>(ISoftDeleteEntity.PropertyName);
-                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntity.PropertyName));
+                entityTypeBuilder.Property<bool>(ISoftDeleteEntity_IsDeletedPropertyName);
+                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntity_IsDeletedPropertyName));
             }
             else if (interfaces.Contains(typeof(IMultiTenantEntity)))
             {
                 entityMarker |= EntityMarker.HasMultiTenantEntities;
-                entityTypeBuilder.Property<Guid>(IMultiTenantEntity.PropertyName);
-                entityTypeBuilder.HasQueryFilter(x => EF.Property<Guid>(x, IMultiTenantEntity.PropertyName) == GetTenantId());
+                entityTypeBuilder.Property<Guid>(IMultiTenantEntity_TenantIdPropertyName);
+                entityTypeBuilder.HasQueryFilter(x => EF.Property<Guid>(x, IMultiTenantEntity_TenantIdPropertyName) == GetTenantId());
             }
 
             if (interfaces.Contains(typeof(IAuditableEntity)))
             {
                 entityMarker |= EntityMarker.HasAuditableEntities;
-                entityTypeBuilder.Property<Guid>(IAuditableEntity.CreatedByPropertyName);
-                entityTypeBuilder.Property<DateTime>(IAuditableEntity.CreatedPropertyName);
-                entityTypeBuilder.Property<Guid>(IAuditableEntity.LastModifiedByPropertyName);
-                entityTypeBuilder.Property<DateTime>(IAuditableEntity.LastModifiedPropertyName);
+                entityTypeBuilder.Property<Guid>(IAuditableEntity_CreatedByPropertyName);
+                entityTypeBuilder.Property<DateTime>(IAuditableEntity_CreatedPropertyName);
+                entityTypeBuilder.Property<Guid>(IAuditableEntity_LastModifiedByPropertyName);
+                entityTypeBuilder.Property<DateTime>(IAuditableEntity_LastModifiedPropertyName);
             }
         }
 
@@ -127,26 +133,26 @@ namespace SI.UnitOfWork.Common
                 // Set _IsDeleted flag to 1 instead of removing the entity
                 if (entityMarker.HasFlag(EntityMarker.HasSoftDeletionEntities) && entry.State == EntityState.Deleted && interfaces.Contains(typeof(ISoftDeleteEntity)))
                 {
-                    entry.Property(ISoftDeleteEntity.PropertyName).CurrentValue = true;
+                    entry.Property(ISoftDeleteEntity_IsDeletedPropertyName).CurrentValue = true;
                     entry.State = EntityState.Modified;
                 }
 
                 // Set timestamps and identity
                 if (entityMarker.HasFlag(EntityMarker.HasAuditableEntities) && (entry.State == EntityState.Added || entry.State == EntityState.Modified) && interfaces.Contains(typeof(IAuditableEntity)))
                 {
-                    entry.Property(IAuditableEntity.LastModifiedPropertyName).CurrentValue = timestamp;
-                    entry.Property(IAuditableEntity.LastModifiedByPropertyName).CurrentValue = GetUserId();
+                    entry.Property(IAuditableEntity_LastModifiedPropertyName).CurrentValue = timestamp;
+                    entry.Property(IAuditableEntity_LastModifiedByPropertyName).CurrentValue = GetUserId();
                     if (entry.State == EntityState.Added)
                     {
-                        entry.Property(IAuditableEntity.CreatedPropertyName).CurrentValue = timestamp;
-                        entry.Property(IAuditableEntity.CreatedByPropertyName).CurrentValue = GetUserId();
+                        entry.Property(IAuditableEntity_CreatedPropertyName).CurrentValue = timestamp;
+                        entry.Property(IAuditableEntity_CreatedByPropertyName).CurrentValue = GetUserId();
                     }
                 }
 
                 // Set tenant
                 if (entityMarker.HasFlag(EntityMarker.HasMultiTenantEntities) && entry.State == EntityState.Added && interfaces.Contains(typeof(IMultiTenantEntity)))
                 {
-                    entry.Property(IMultiTenantEntity.PropertyName).CurrentValue = GetTenantId();
+                    entry.Property(IMultiTenantEntity_TenantIdPropertyName).CurrentValue = GetTenantId();
                 }
             }
         }
