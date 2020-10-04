@@ -11,7 +11,7 @@ namespace SI.UnitOfWork
     {
         private readonly EFContext dbContext;
         private readonly IDictionary<Type, object> repositories = new Dictionary<Type, object>();
-        private bool disposed = false;
+        private bool disposed;
 
         public EFUnitOfWork(EFContext dbContext)
         {
@@ -59,17 +59,19 @@ namespace SI.UnitOfWork
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed)
             {
-                if (disposing)
-                {
-                    if (repositories != null)
-                    {
-                        repositories.Clear();
-                    }
+                return;
+            }
 
-                    DbContext.Dispose();
+            if (disposing)
+            {
+                if (repositories != null)
+                {
+                    repositories.Clear();
                 }
+
+                DbContext.Dispose();
             }
 
             disposed = true;

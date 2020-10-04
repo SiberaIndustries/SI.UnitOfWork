@@ -12,12 +12,12 @@ namespace SI.UnitOfWork
 {
     public class EFContext : DbContext, IDbContext
     {
-        public const string IAuditableEntity_CreatedByPropertyName = "_CreatedBy";
-        public const string IAuditableEntity_CreatedPropertyName = "_CreatedAt";
-        public const string IAuditableEntity_LastModifiedByPropertyName = "_LastModifiedBy";
-        public const string IAuditableEntity_LastModifiedPropertyName = "_LastModifiedAt";
-        public const string IMultiTenantEntity_TenantIdPropertyName = "_TenantId";
-        public const string ISoftDeleteEntity_IsDeletedPropertyName = "_IsDeleted";
+        public const string IAuditableEntityCreatedByPropertyName = "_CreatedBy";
+        public const string IAuditableEntityCreatedPropertyName = "_CreatedAt";
+        public const string IAuditableEntityLastModifiedByPropertyName = "_LastModifiedBy";
+        public const string IAuditableEntityLastModifiedPropertyName = "_LastModifiedAt";
+        public const string IMultiTenantEntityTenantIdPropertyName = "_TenantId";
+        public const string ISoftDeleteEntityIsDeletedPropertyName = "_IsDeleted";
         private EntityMarker entityMarker;
         private IIdentityProvider? tenantProvider;
         private IIdentityProvider? userProvider;
@@ -25,6 +25,15 @@ namespace SI.UnitOfWork
         public EFContext(DbContextOptions<EFContext> options)
             : base(options)
         {
+        }
+
+        [Flags]
+        internal enum EntityMarker
+        {
+            None = 0,
+            HasAuditableEntities = 1,
+            HasSoftDeletionEntities = 2,
+            HasMultiTenantEntities = 4,
         }
 
         private Guid GetTenantId()
@@ -86,30 +95,30 @@ namespace SI.UnitOfWork
             if (interfaces.Contains(typeof(ISoftDeleteEntity)) && interfaces.Contains(typeof(IMultiTenantEntity)))
             {
                 entityMarker |= EntityMarker.HasSoftDeletionEntities;
-                entityTypeBuilder.Property(IMultiTenantEntity_TenantIdPropertyName);
-                entityTypeBuilder.Property<bool>(ISoftDeleteEntity_IsDeletedPropertyName);
-                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntity_IsDeletedPropertyName) && EF.Property<Guid>(x, IMultiTenantEntity_TenantIdPropertyName) == GetTenantId());
+                entityTypeBuilder.Property(IMultiTenantEntityTenantIdPropertyName);
+                entityTypeBuilder.Property<bool>(ISoftDeleteEntityIsDeletedPropertyName);
+                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntityIsDeletedPropertyName) && EF.Property<Guid>(x, IMultiTenantEntityTenantIdPropertyName) == GetTenantId());
             }
             else if (interfaces.Contains(typeof(ISoftDeleteEntity)))
             {
                 entityMarker |= EntityMarker.HasSoftDeletionEntities | EntityMarker.HasMultiTenantEntities;
-                entityTypeBuilder.Property<bool>(ISoftDeleteEntity_IsDeletedPropertyName);
-                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntity_IsDeletedPropertyName));
+                entityTypeBuilder.Property<bool>(ISoftDeleteEntityIsDeletedPropertyName);
+                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntityIsDeletedPropertyName));
             }
             else if (interfaces.Contains(typeof(IMultiTenantEntity)))
             {
                 entityMarker |= EntityMarker.HasMultiTenantEntities;
-                entityTypeBuilder.Property<Guid>(IMultiTenantEntity_TenantIdPropertyName);
-                entityTypeBuilder.HasQueryFilter(x => EF.Property<Guid>(x, IMultiTenantEntity_TenantIdPropertyName) == GetTenantId());
+                entityTypeBuilder.Property<Guid>(IMultiTenantEntityTenantIdPropertyName);
+                entityTypeBuilder.HasQueryFilter(x => EF.Property<Guid>(x, IMultiTenantEntityTenantIdPropertyName) == GetTenantId());
             }
 
             if (interfaces.Contains(typeof(IAuditableEntity)))
             {
                 entityMarker |= EntityMarker.HasAuditableEntities;
-                entityTypeBuilder.Property<Guid>(IAuditableEntity_CreatedByPropertyName);
-                entityTypeBuilder.Property<DateTime>(IAuditableEntity_CreatedPropertyName);
-                entityTypeBuilder.Property<Guid>(IAuditableEntity_LastModifiedByPropertyName);
-                entityTypeBuilder.Property<DateTime>(IAuditableEntity_LastModifiedPropertyName);
+                entityTypeBuilder.Property<Guid>(IAuditableEntityCreatedByPropertyName);
+                entityTypeBuilder.Property<DateTime>(IAuditableEntityCreatedPropertyName);
+                entityTypeBuilder.Property<Guid>(IAuditableEntityLastModifiedByPropertyName);
+                entityTypeBuilder.Property<DateTime>(IAuditableEntityLastModifiedPropertyName);
             }
         }
 
@@ -133,26 +142,26 @@ namespace SI.UnitOfWork
                 // Set _IsDeleted flag to 1 instead of removing the entity
                 if (entityMarker.HasFlag(EntityMarker.HasSoftDeletionEntities) && entry.State == EntityState.Deleted && interfaces.Contains(typeof(ISoftDeleteEntity)))
                 {
-                    entry.Property(ISoftDeleteEntity_IsDeletedPropertyName).CurrentValue = true;
+                    entry.Property(ISoftDeleteEntityIsDeletedPropertyName).CurrentValue = true;
                     entry.State = EntityState.Modified;
                 }
 
                 // Set timestamps and identity
                 if (entityMarker.HasFlag(EntityMarker.HasAuditableEntities) && (entry.State == EntityState.Added || entry.State == EntityState.Modified) && interfaces.Contains(typeof(IAuditableEntity)))
                 {
-                    entry.Property(IAuditableEntity_LastModifiedPropertyName).CurrentValue = timestamp;
-                    entry.Property(IAuditableEntity_LastModifiedByPropertyName).CurrentValue = GetUserId();
+                    entry.Property(IAuditableEntityLastModifiedPropertyName).CurrentValue = timestamp;
+                    entry.Property(IAuditableEntityLastModifiedByPropertyName).CurrentValue = GetUserId();
                     if (entry.State == EntityState.Added)
                     {
-                        entry.Property(IAuditableEntity_CreatedPropertyName).CurrentValue = timestamp;
-                        entry.Property(IAuditableEntity_CreatedByPropertyName).CurrentValue = GetUserId();
+                        entry.Property(IAuditableEntityCreatedPropertyName).CurrentValue = timestamp;
+                        entry.Property(IAuditableEntityCreatedByPropertyName).CurrentValue = GetUserId();
                     }
                 }
 
                 // Set tenant
                 if (entityMarker.HasFlag(EntityMarker.HasMultiTenantEntities) && entry.State == EntityState.Added && interfaces.Contains(typeof(IMultiTenantEntity)))
                 {
-                    entry.Property(IMultiTenantEntity_TenantIdPropertyName).CurrentValue = GetTenantId();
+                    entry.Property(IMultiTenantEntityTenantIdPropertyName).CurrentValue = GetTenantId();
                 }
             }
         }
@@ -211,15 +220,6 @@ namespace SI.UnitOfWork
         internal sealed class NullIdentityProvider : IIdentityProvider
         {
             public Guid Identity => Guid.Empty;
-        }
-
-        [Flags]
-        internal enum EntityMarker
-        {
-            None = 0,
-            HasAuditableEntities = 1,
-            HasSoftDeletionEntities = 2,
-            HasMultiTenantEntities = 4,
         }
     }
 }

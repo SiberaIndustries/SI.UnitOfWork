@@ -8,7 +8,7 @@ namespace SI.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly IServiceProvider serviceProvider;
-        private bool disposed = false;
+        private bool disposed;
 
         public UnitOfWork(IDbContext dbContext, IServiceProvider serviceProvider)
         {
@@ -47,12 +47,14 @@ namespace SI.UnitOfWork
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed)
             {
-                if (disposing)
-                {
-                    DbContext.Dispose();
-                }
+                return;
+            }
+
+            if (disposing)
+            {
+                DbContext.Dispose();
             }
 
             disposed = true;

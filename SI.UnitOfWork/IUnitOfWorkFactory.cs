@@ -4,6 +4,7 @@ namespace SI.UnitOfWork
 {
     public interface IUnitOfWorkFactory
     {
-        IUnitOfWork<TContext> GetUnitOfWork<TContext>() where TContext : IDbContext;
+        IUnitOfWork<TContext> GetUnitOfWork<TContext>()
+            where TContext : IDbContext;
     }
 }
