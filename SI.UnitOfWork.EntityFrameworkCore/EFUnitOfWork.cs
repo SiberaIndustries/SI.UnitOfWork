@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
-using SI.UnitOfWork.Common;
 using SI.UnitOfWork.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -27,7 +26,7 @@ namespace SI.UnitOfWork
             var type = typeof(TEntity);
             if (!repositories.ContainsKey(type))
             {
-                repositories[type] = new EFRepository<TEntity>(DbContext);
+                repositories[type] = new EFRepository<TEntity>(dbContext);
             }
 
             return (IRepository<TEntity>)repositories[type];

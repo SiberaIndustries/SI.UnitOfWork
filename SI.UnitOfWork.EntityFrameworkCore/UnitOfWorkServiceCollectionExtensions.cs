@@ -12,11 +12,11 @@ namespace SI.UnitOfWork
             services.AddTransient(typeof(IRepository<>), typeof(EFRepository<>));
             return services;
         }
+
         public static IServiceCollection AddEFUnitOfWork<TContext>(this IServiceCollection services)
             where TContext : DbContext, IDbContext
         {
             services.AddScoped<IUnitOfWork<TContext>, EFUnitOfWork<TContext>>();
-            services.AddTransient(typeof(IRepository<>), typeof(EFRepository<>));
             return services;
         }
     }

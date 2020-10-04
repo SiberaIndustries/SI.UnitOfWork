@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SI.UnitOfWork.Common
+namespace SI.UnitOfWork
 {
     public class EFContext : DbContext, IDbContext
     {

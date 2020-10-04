@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SI.UnitOfWork.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +15,9 @@ namespace SI.UnitOfWork
         protected readonly DbContext dbContext;
         protected readonly DbSet<TEntity> dbSet;
 
-        public EFRepository(IDbContext dbContext)
+        public EFRepository(DbContext dbContext)
         {
-            this.dbContext = dbContext as DbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             dbSet = this.dbContext.Set<TEntity>();
         }
 
