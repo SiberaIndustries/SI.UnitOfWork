@@ -15,8 +15,8 @@ namespace SI.UnitOfWork.Tests
         {
             var services = new ServiceCollection();
 
-            services.AddTransient<PersonRepository>();
-            services.AddTransient<DefaultRepository>();
+            services.AddScoped<PersonRepository>();
+            services.AddScoped<DefaultRepository>();
             services.AddDbContext<EFContext>(x => x.UseInMemoryDatabase("InMemory1"));
             services.AddDbContext<IDbContext, EFContext>(x => x.UseInMemoryDatabase("InMemory1"));
             services.AddDbContext<CustomContext>(x => x.UseInMemoryDatabase("InMemory2"));
