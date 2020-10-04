@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Query;
 using SI.UnitOfWork.Interfaces;
 using System;
 using System.Linq;
-using System.Reflection;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,6 +35,13 @@ namespace SI.UnitOfWork
             HasAuditableEntities = 1,
             HasSoftDeletionEntities = 2,
             HasMultiTenantEntities = 4,
+        }
+
+        private static LambdaExpression ConvertFilterExpression(Type entityType, Expression<Func<object, bool>> filterExpression)
+        {
+            var newParam = Expression.Parameter(entityType);
+            var newBody = ReplacingExpressionVisitor.Replace(filterExpression.Parameters.Single(), newParam, filterExpression.Body);
+            return Expression.Lambda(newBody, newParam);
         }
 
         private Guid GetTenantId()
@@ -70,10 +78,8 @@ namespace SI.UnitOfWork
             return userProvider.Identity;
         }
 
-        private void ResolveEntityDefinitions<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder, DatabaseFacade database)
-            where TEntity : class
+        private void ResolveEntityDefinitions(Type entityType, EntityTypeBuilder entityTypeBuilder, DatabaseFacade database)
         {
-            var entityType = typeof(TEntity);
             foreach (var prop in entityType.GetProperties().Where(x => x.PropertyType.GetInterfaces().Contains(typeof(IOwnedType))))
             {   // Owned types
                 entityTypeBuilder.OwnsOne(prop.PropertyType, prop.Name);
@@ -82,11 +88,11 @@ namespace SI.UnitOfWork
             var interfaces = entityType.GetInterfaces();
             if (database.IsSqlServer() && interfaces.Where(x => x.IsGenericType).Select(x => x.GetGenericTypeDefinition()).Contains(typeof(IConcurrentEntity<>)))
             {   // Concurrent entities in MSSQL server
-                entityTypeBuilder.Property(nameof(IConcurrentEntity<TEntity>.ConcurrencyToken)).IsRowVersion();
+                entityTypeBuilder.Property(nameof(IConcurrentEntity<object>.ConcurrencyToken)).IsRowVersion();
             }
             else if (database.IsNpgsql() && interfaces.Where(x => x.IsGenericType).Select(x => x.GetGenericTypeDefinition()).Contains(typeof(IConcurrentEntity<>)))
             {   // Concurrent entities in PostgreSql server
-                entityTypeBuilder.Property(nameof(IConcurrentEntity<TEntity>.ConcurrencyToken)).HasColumnName("xmin").HasColumnType("xid").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
+                entityTypeBuilder.Property(nameof(IConcurrentEntity<object>.ConcurrencyToken)).HasColumnName("xmin").HasColumnType("xid").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
             }
 
             entityTypeBuilder.IsMemoryOptimized(interfaces.Contains(typeof(IPerformanceCritical)));
@@ -95,21 +101,21 @@ namespace SI.UnitOfWork
             if (interfaces.Contains(typeof(ISoftDeleteEntity)) && interfaces.Contains(typeof(IMultiTenantEntity)))
             {
                 entityMarker |= EntityMarker.HasSoftDeletionEntities;
-                entityTypeBuilder.Property(IMultiTenantEntityTenantIdPropertyName);
+                entityTypeBuilder.Property<Guid>(IMultiTenantEntityTenantIdPropertyName);
                 entityTypeBuilder.Property<bool>(ISoftDeleteEntityIsDeletedPropertyName);
-                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntityIsDeletedPropertyName) && EF.Property<Guid>(x, IMultiTenantEntityTenantIdPropertyName) == GetTenantId());
+                entityTypeBuilder.HasQueryFilter(ConvertFilterExpression(entityType, x => !EF.Property<bool>(x, ISoftDeleteEntityIsDeletedPropertyName) && EF.Property<Guid>(x, IMultiTenantEntityTenantIdPropertyName) == GetTenantId()));
             }
             else if (interfaces.Contains(typeof(ISoftDeleteEntity)))
             {
                 entityMarker |= EntityMarker.HasSoftDeletionEntities | EntityMarker.HasMultiTenantEntities;
                 entityTypeBuilder.Property<bool>(ISoftDeleteEntityIsDeletedPropertyName);
-                entityTypeBuilder.HasQueryFilter(x => !EF.Property<bool>(x, ISoftDeleteEntityIsDeletedPropertyName));
+                entityTypeBuilder.HasQueryFilter(ConvertFilterExpression(entityType, x => !EF.Property<bool>(x, ISoftDeleteEntityIsDeletedPropertyName)));
             }
             else if (interfaces.Contains(typeof(IMultiTenantEntity)))
             {
                 entityMarker |= EntityMarker.HasMultiTenantEntities;
                 entityTypeBuilder.Property<Guid>(IMultiTenantEntityTenantIdPropertyName);
-                entityTypeBuilder.HasQueryFilter(x => EF.Property<Guid>(x, IMultiTenantEntityTenantIdPropertyName) == GetTenantId());
+                entityTypeBuilder.HasQueryFilter(ConvertFilterExpression(entityType, x => EF.Property<Guid>(x, IMultiTenantEntityTenantIdPropertyName) == GetTenantId()));
             }
 
             if (interfaces.Contains(typeof(IAuditableEntity)))
@@ -203,18 +209,18 @@ namespace SI.UnitOfWork
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
-            var entityTypes = modelBuilder.Model.GetEntityTypes().Select(x => x.ClrType).Where(type => type.GetInterfaces().Contains(typeof(IEntity))).ToArray();
-            foreach (var entityType in entityTypes)
-            {   // Get and execute modelBuilder.Entity<TEntity>()
-                var mbEntityOfT = typeof(ModelBuilder).GetMethods().First(x => x.Name == nameof(modelBuilder.Entity)).MakeGenericMethod(entityType);
-                var builder = mbEntityOfT.Invoke(modelBuilder, null);
+            // Apply Entity type configuration to all relevant assemblies containing types which implement IEntityTypeConfiguration
+            AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => !x.FullName.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase) && !x.FullName.StartsWith("System.", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.GetTypes().Any(x => x.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))))
+                .ToList().ForEach(assembly => modelBuilder.ApplyConfigurationsFromAssembly(assembly));
 
-                // Get and execute ResolveEntityDefinitions<TEntity>(..)
-                var resolveEntityDefinitionsOfT = GetType().GetMethod(nameof(ResolveEntityDefinitions), BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(entityType);
-                resolveEntityDefinitionsOfT.Invoke(this, new object[] { builder, Database });
-            }
+            // Resolve entity type definitions for every Entity ClrType
+            modelBuilder.Model.GetEntityTypes()
+                .Select(x => x.ClrType)
+                .Where(type => type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntity<>)))
+                .ToList().ForEach(entityType => ResolveEntityDefinitions(entityType, modelBuilder.Entity(entityType), Database));
         }
 
         internal sealed class NullIdentityProvider : IIdentityProvider
