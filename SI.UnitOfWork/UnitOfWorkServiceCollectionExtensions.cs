@@ -7,14 +7,18 @@ namespace SI.UnitOfWork
     {
         public static IServiceCollection AddUnitOfWork(this IServiceCollection services)
         {
+            services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IRepositoryFactory, UnitOfWork>();
             return services;
         }
 
         public static IServiceCollection AddUnitOfWork<TContext>(this IServiceCollection services)
           where TContext : IDbContext
         {
+            services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
             services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
+            services.AddScoped<IRepositoryFactory, UnitOfWork<TContext>>();
             return services;
         }
     }
