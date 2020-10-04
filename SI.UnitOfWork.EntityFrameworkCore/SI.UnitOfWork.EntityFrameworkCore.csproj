@@ -45,4 +45,8 @@
     <ProjectReference Include="..\SI.UnitOfWork\SI.UnitOfWork.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\icon.png" Link="icon.png" Visible="false" Pack="true" PackagePath="" />
+  </ItemGroup>
+
 </Project>
