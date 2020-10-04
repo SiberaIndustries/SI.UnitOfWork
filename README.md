@@ -116,3 +116,7 @@ public class SampleClass
     }
 }
 ```
+
+## Open Source License Acknowledgements and Third-Party Copyrights
+
+- Icon made by [Freepik](https://www.flaticon.com/authors/freepik)
