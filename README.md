@@ -8,9 +8,9 @@
 
 ## Introduction
 
-The most of the repository pattern libraries for .NET or .NET Core depends on the Entity Framework.
-Unlike all those frameworks, the `SI.UnitOfWork` has **no such dependencies** and follows the strict paradigms of the repository pattern.
-But if you want to, `SI.UnitOfWork.EntityFrameworkCore` provides a complete and ready to use library for **SqLite**, **PostgreSQL**, **SQL Server** and the **InMemory** provider of Entity Framework.
+Most of the repository pattern libraries for .NET or .NET Core depend on the Entity Framework.
+Unlike all these frameworks, the `SI.UnitOfWork` has **no such dependencies** and follows the strict paradigms of the repository pattern.
+But if you want, `SI.UnitOfWork.EntityFrameworkCore` provides a complete and ready-to-use library for **SqLite**, **PostgreSQL**, **SQL Server** and the **InMemory** provider of Entity Framework.
 
 ---
 
