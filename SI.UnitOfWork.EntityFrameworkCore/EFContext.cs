@@ -136,13 +136,9 @@ namespace SI.UnitOfWork
             }
 
             var timestamp = DateTime.UtcNow;
-            foreach (var entry in ChangeTracker.Entries())
+            var entries = ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted || x.State == EntityState.Added || x.State == EntityState.Modified).ToArray();
+            foreach (var entry in entries)
             {
-                if (entry.State != EntityState.Deleted && entry.State != EntityState.Added && entry.State != EntityState.Modified)
-                {
-                    continue;
-                }
-
                 var interfaces = entry.Entity.GetType().GetInterfaces();
 
                 // Set _IsDeleted flag to 1 instead of removing the entity
