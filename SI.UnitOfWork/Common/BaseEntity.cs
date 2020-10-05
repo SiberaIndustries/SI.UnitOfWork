@@ -20,7 +20,7 @@ namespace SI.UnitOfWork.Common
                 return true;
             }
 
-            if (Id.Equals(default) || other.Id.Equals(default) || !Equals(Id, other.Id))
+            if (Id.Equals(default(TKey)) || other.Id.Equals(default(TKey)) || !Equals(Id, other.Id))
             {   // Check if IDs has default values or are not equal
                 return false;
             }
