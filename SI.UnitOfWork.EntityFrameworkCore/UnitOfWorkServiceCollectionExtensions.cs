@@ -26,8 +26,8 @@ namespace SI.UnitOfWork
             services.TryAddScoped<IUnitOfWork<TContext>, EFUnitOfWork<TContext>>();
             services.TryAddScoped<IRepositoryFactory<TContext>, EFUnitOfWork<TContext>>();
 
-            // services.TryAddScoped<DbContext, TContext>();
-            // services.TryAddScoped<IDbContext, TContext>();
+            // services.TryAddScoped<DbContext, TContext>()
+            // services.TryAddScoped<IDbContext, TContext>()
             services.TryAddScoped(typeof(IRepository<>), typeof(EFRepository<>));
             return services;
         }
