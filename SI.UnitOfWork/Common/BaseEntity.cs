@@ -3,14 +3,12 @@ using System;
 
 namespace SI.UnitOfWork.Common
 {
-    public abstract class BaseEntity<TKey> : IEquatable<LazyEntity<TKey>>, IEntity<TKey>
+    public abstract class BaseEntity<TKey> : IEquatable<BaseEntity<TKey>>, IEntity<TKey>
         where TKey : notnull
     {
-        /// <inheritdoc cref="IEntity" />
         public TKey Id { get; set; } = default!;
 
-        /// <inheritdoc cref="IEquatable{T}" />
-        public virtual bool Equals(LazyEntity<TKey>? other)
+        public virtual bool Equals(BaseEntity<TKey>? other)
         {
             if (other == null)
             {   // If parameter is null, return false
@@ -32,11 +30,9 @@ namespace SI.UnitOfWork.Common
             return thisType.IsAssignableFrom(objType) || objType.IsAssignableFrom(thisType);
         }
 
-        /// <inheritdoc cref="object" />
         public override bool Equals(object? obj) =>
-            Equals(obj as LazyEntity<TKey>);
+            Equals(obj as BaseEntity<TKey>);
 
-        /// <inheritdoc cref="object" />
         public override int GetHashCode() =>
             Id.GetHashCode();
     }
