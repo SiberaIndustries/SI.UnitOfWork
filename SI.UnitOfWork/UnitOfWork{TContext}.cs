@@ -8,16 +8,15 @@ namespace SI.UnitOfWork
     public class UnitOfWork<TContext> : IUnitOfWork<TContext>
         where TContext : IDbContext
     {
+        private readonly IDbContext dbContext;
         private readonly IServiceProvider serviceProvider;
         private bool disposed;
 
         public UnitOfWork(TContext dbContext, IServiceProvider serviceProvider)
         {
-            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
-
-        public TContext DbContext { get; }
 
         public IRepository<TEntity> GetRepository<TEntity>()
             where TEntity : class
@@ -35,10 +34,10 @@ namespace SI.UnitOfWork
         }
 
         public int SaveChanges() =>
-            DbContext.SaveChanges();
+            dbContext.SaveChanges();
 
         public Task<int> SaveChangesAsync(CancellationToken ct = default) =>
-            DbContext.SaveChangesAsync(ct);
+            dbContext.SaveChangesAsync(ct);
 
         public void Dispose()
         {
@@ -55,7 +54,7 @@ namespace SI.UnitOfWork
 
             if (disposing)
             {
-                DbContext.Dispose();
+                dbContext.Dispose();
             }
 
             disposed = true;

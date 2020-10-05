@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SI.UnitOfWork.Interfaces;
 using SI.UnitOfWork.Tests.SampleData.Contexts;
 using SI.UnitOfWork.Tests.SampleData.Entities;
 using SI.UnitOfWork.Tests.SampleData.Repositories;
@@ -18,7 +17,6 @@ namespace SI.UnitOfWork.Tests
             services.AddScoped<PersonRepository>();
             services.AddScoped<DefaultRepository>();
             services.AddDbContext<EFContext>(x => x.UseInMemoryDatabase("InMemory1"));
-            services.AddDbContext<IDbContext, EFContext>(x => x.UseInMemoryDatabase("InMemory1"));
             services.AddDbContext<CustomContext>(x => x.UseInMemoryDatabase("InMemory2"));
             services.AddEFUnitOfWork();
             services.AddEFUnitOfWork<CustomContext>();

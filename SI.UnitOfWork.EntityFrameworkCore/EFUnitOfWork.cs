@@ -1,80 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
-using SI.UnitOfWork.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace SI.UnitOfWork
 {
-    public class EFUnitOfWork : IUnitOfWork
+    public class EFUnitOfWork : EFUnitOfWork<EFContext>
     {
-        private readonly EFContext dbContext;
-        private readonly IDictionary<Type, object> repositories = new Dictionary<Type, object>();
-        private bool disposed;
-
-        public EFUnitOfWork(EFContext dbContext)
+        public EFUnitOfWork(EFContext dbContext, IServiceProvider serviceProvider)
+            : base(dbContext, serviceProvider)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        }
-
-        public IDbContext DbContext => dbContext;
-
-        public IRepository<TEntity> GetRepository<TEntity>()
-            where TEntity : class
-        {
-            var type = typeof(TEntity);
-            if (!repositories.ContainsKey(type))
-            {
-                repositories[type] = new EFRepository<TEntity>(dbContext);
-            }
-
-            return (IRepository<TEntity>)repositories[type];
-        }
-
-        public TRepository GetRepository<TEntity, TRepository>()
-            where TEntity : class
-            where TRepository : IRepository<TEntity>
-        {
-            var type = typeof(TRepository);
-            if (!repositories.ContainsKey(type))
-            {
-                repositories[type] = dbContext.GetService<TRepository>();
-            }
-
-            return (TRepository)repositories[type];
-        }
-
-        public int SaveChanges() =>
-            DbContext.SaveChanges();
-
-        public Task<int> SaveChangesAsync(CancellationToken ct = default) =>
-            DbContext.SaveChangesAsync(ct);
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                if (repositories != null)
-                {
-                    repositories.Clear();
-                }
-
-                DbContext.Dispose();
-            }
-
-            disposed = true;
         }
     }
 }
