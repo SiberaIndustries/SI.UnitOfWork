@@ -28,7 +28,7 @@ Install-Package SI.UnitOfWork
 public void ConfigureServices(IServiceCollection services)
 {
     // ..
-    services.AddDbContext<IDbContext, SampleContext>(opt => opt.UseInMemoryDatabase());
+    services.AddDbContext<IDbContext, SampleContext>(o => o.UseInMemoryDatabase("mem-db"));
     services.AddUnitOfWork<SampleContext>();
     services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
     services.AddScoped(typeof(ICustomRepository), typeof(CustomRepository));
@@ -36,14 +36,14 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-### 2. Implement 
+### 2. Inject and use
 
 ```cs
 public class SampleClass
 {   
     // Opt. 1. Inject a UoW for regular DB read and write operations
     // Opt. 2. Inject a UoW-Factory in case you work with multiple databases
-    // Opt. 3. Inject a RepositoryFactory to get readonly repositories
+    // Opt. 3. Inject a RepositoryFactory to get read-only repositories
     public SampleClass(
         IUnitOfWork unitOfWork, 
         IUnitOfWorkFactory<SampleContext> unitofWorkFactory,
@@ -54,23 +54,23 @@ public class SampleClass
 
 
         // Opt. 1
-        personRepository = unitOfWork.GetReposotory<Person>();
-        customRepository = unitOfWork.GetReposotory<Person, ICustomRepository>();
+        personRepository = unitOfWork.GetRepository<Person>();
+        customRepository = unitOfWork.GetRepository<Person, ICustomRepository>();
         // .. do work
-        unitOfWork.SaveChanged();
+        unitOfWork.SaveChanges();
 
 
         // Opt. 2
         using var uow = unitofWorkFactory.GetUnitOfWork();
-        personRepository = uow.GetReposotory<Person>();
-        customRepository = uow.GetReposotory<Person, ICustomRepository>();
+        personRepository = uow.GetRepository<Person>();
+        customRepository = uow.GetRepository<Person, ICustomRepository>();
         // .. do work
-        uow.SaveChanged();
+        uow.SaveChanges();
 
 
         // Opt. 3
-        personRepository = repositoryFactory.GetReposotory<Person>();
-        customRepository = repositoryFactory.GetReposotory<Person, ICustomRepository>();
+        personRepository = repositoryFactory.GetRepository<Person>();
+        customRepository = repositoryFactory.GetRepository<Person, ICustomRepository>();
         // No SaveChanges available!
     }
 }
@@ -92,13 +92,14 @@ Install-Package SI.UnitOfWork.EntityFrameworkCore
 public void ConfigureServices(IServiceCollection services)
 {
     // ..
-    services.AddDbContext<EFContext>(opt => opt.UseInMemoryDatabase());
+    services.AddDbContext<EFContext>(o => o.UseInMemoryDatabase("mem-db");
     services.AddEFUnitOfWork();
+    services.AddScoped(typeof(ICustomRepository), typeof(CustomRepository));
     // ..
 }
 ```
 
-### 2. Implement 
+### 2. Inject and use
 
 ```cs
 public class SampleClass
@@ -109,10 +110,10 @@ public class SampleClass
         ICustomRepository customRepository;     // Register custom repositories manually!
 
 
-        personRepository = unitOfWork.GetReposotory<Person>();
-        customRepository = unitOfWork.GetReposotory<Person, ICustomRepository>();
+        personRepository = unitOfWork.GetRepository<Person>();
+        customRepository = unitOfWork.GetRepository<Person, ICustomRepository>();
         // .. do work
-        unitOfWork.SaveChanged();
+        unitOfWork.SaveChanges();
     }
 }
 ```
