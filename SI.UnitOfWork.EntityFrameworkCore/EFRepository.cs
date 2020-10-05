@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -95,28 +94,13 @@ namespace SI.UnitOfWork
             return Task.CompletedTask;
         }
 
-        public virtual Task DeleteAsync(object id, CancellationToken ct = default)
+        public virtual async Task DeleteAsync(object id, CancellationToken ct = default)
         {
-            // using a stub entity to mark for deletion
-            var typeInfo = typeof(TEntity).GetTypeInfo();
-            var key = DbContext.Model.FindEntityType(typeInfo).FindPrimaryKey().Properties[0];
-            var property = typeInfo.GetProperty(key?.Name);
-            if (property != null)
+            var entity = await FindAsync(id).ConfigureAwait(false);
+            if (entity != null)
             {
-                var entity = Activator.CreateInstance<TEntity>();
-                property.SetValue(entity, id);
-                DbContext.Entry(entity).State = EntityState.Deleted;
+                await DeleteAsync(entity, ct).ConfigureAwait(false);
             }
-            else
-            {
-                var entity = DbSet.Find(id);
-                if (entity != null)
-                {
-                    return DeleteAsync(entity, ct);
-                }
-            }
-
-            return Task.CompletedTask;
         }
 
         public virtual Task DeleteAsync(TEntity entity, CancellationToken ct = default) =>
