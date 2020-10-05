@@ -2,7 +2,7 @@
 
 namespace SI.UnitOfWork.Tests.SampleData.Repositories
 {
-    public class PersonRepository : EFRepository<Person>
+    public class PersonRepository : EFRepository<Person>, IPersonRepository
     {
         public PersonRepository(EFContext dbContext)
             : base(dbContext)
@@ -13,5 +13,10 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
         {
             return "Hello " + nameof(CustomMethod);
         }
+    }
+
+    public interface IPersonRepository : IRepository<Person>
+    {
+        public string CustomMethod();
     }
 }
