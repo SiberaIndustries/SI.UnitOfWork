@@ -2,7 +2,7 @@
 
 namespace SI.UnitOfWork
 {
-    public interface IUnitOfWork<TContext> : IUnitOfWork
+    public interface IUnitOfWork<TContext> : IUnitOfWork, IRepositoryFactory<TContext>
         where TContext : IDbContext
     {
     }

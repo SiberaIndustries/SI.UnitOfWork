@@ -1,4 +1,6 @@
-﻿namespace SI.UnitOfWork
+﻿using SI.UnitOfWork.Interfaces;
+
+namespace SI.UnitOfWork
 {
     public interface IRepositoryFactory
     {
@@ -8,5 +10,10 @@
         TRepository GetRepository<TEntity, TRepository>()
             where TEntity : class
             where TRepository : IRepository<TEntity>;
+    }
+
+    public interface IRepositoryFactory<TContext> : IRepositoryFactory
+        where TContext : IDbContext
+    {
     }
 }
