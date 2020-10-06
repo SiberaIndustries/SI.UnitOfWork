@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SI.UnitOfWork.Tests.SampleData.Entities;
+using SI.UnitOfWork.Tests.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,18 +12,12 @@ namespace SI.UnitOfWork.Tests
     {
         private readonly DbContext dbContext;
         private readonly IRepository<Person> repository;
-        private static readonly IEnumerable<Person> personSeed = new Person[]
-        {
-            new Person { Id = 1.ToGuid(), Firstname = "Bob", Lastname = "Smith", Birthday = new DateTime(1988, 1, 1) },
-            new Person { Id = 2.ToGuid(), Firstname = "Alice", Lastname = "Smith", Birthday = new DateTime(1990, 6, 6) }
-        };
 
         public RepositoryTests()
         {
             var options = new DbContextOptionsBuilder<EFContext>().UseInMemoryDatabase("InMemoryDB_" + Guid.NewGuid()).Options;
             dbContext = new EFContext(options);
-            dbContext.AddRange(personSeed);
-            dbContext.SaveChanges();
+            dbContext.SeedDatabase();
 
             repository = new EFRepository<Person>(dbContext);
         }
@@ -49,7 +43,7 @@ namespace SI.UnitOfWork.Tests
         public async Task GetAll()
         {
             var result = await repository.GetAllAsync();
-            Assert.Equal(personSeed, result);
+            Assert.Equal(DbUtilities.PersonSeed, result);
         }
 
         [Fact]
@@ -68,10 +62,10 @@ namespace SI.UnitOfWork.Tests
             var result2 = await repository.MaxAsync(selector: x => x.Birthday);
 
             var result3 = await repository.AverageAsync(selector: x => x.Birthday.Ticks);
-            var result4 = personSeed.Average(x => x.Birthday.Ticks);
+            var result4 = DbUtilities.PersonSeed.Average(x => x.Birthday.Ticks);
 
             var result5 = await repository.SumAsync(selector: x => x.Birthday.Ticks);
-            var result6 = personSeed.Sum(x => x.Birthday.Ticks);
+            var result6 = DbUtilities.PersonSeed.Sum(x => x.Birthday.Ticks);
 
             Assert.True(result1 < result2);
             Assert.Equal(new decimal(result4), result3);
@@ -94,7 +88,7 @@ namespace SI.UnitOfWork.Tests
 
             var count = await repository.CountAsync();
 
-            var expectedCount = personSeed.Count() + persons.Length + 1;
+            var expectedCount = DbUtilities.PersonSeed.Count() + persons.Length + 1;
             Assert.Equal(expectedCount, count);
             Assert.NotEqual(default, person.Id);
             Assert.NotEqual(default, persons[0].Id);
@@ -131,7 +125,7 @@ namespace SI.UnitOfWork.Tests
             await dbContext.SaveChangesAsync();
             var count1 = await repository.CountAsync();
 
-            await repository.DeleteAsync(personSeed.Last());
+            await repository.DeleteAsync(DbUtilities.PersonSeed.Last());
             await dbContext.SaveChangesAsync();
             var count2 = await repository.CountAsync();
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SI.UnitOfWork.Tests
+namespace SI.UnitOfWork.Tests.Utilities
 {
     public static class GuidExtensions
     {
