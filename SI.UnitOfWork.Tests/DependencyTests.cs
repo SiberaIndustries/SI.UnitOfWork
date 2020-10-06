@@ -4,6 +4,7 @@ using SI.UnitOfWork.Interfaces;
 using SI.UnitOfWork.Tests.SampleData.Contexts;
 using SI.UnitOfWork.Tests.SampleData.Entities;
 using SI.UnitOfWork.Tests.SampleData.Repositories;
+using System.Linq;
 using Xunit;
 
 namespace SI.UnitOfWork.Tests
@@ -18,7 +19,7 @@ namespace SI.UnitOfWork.Tests
         }
 
         [Fact]
-        public void ResolveDependenciesSuccessfully()
+        public void ResolveEFDependenciesSuccessfully()
         {
             // Arrange
             serviceCollection.AddScoped<IPersonRepository, PersonRepository>();
@@ -30,34 +31,99 @@ namespace SI.UnitOfWork.Tests
             var provider = serviceCollection.BuildServiceProvider();
 
             // Act / Assert
-            var unitOfWork1 = provider.GetService<IUnitOfWork>();
-            var repo11 = unitOfWork1.GetRepository<Person>();
-            var repo12 = unitOfWork1.GetRepository<Person, IPersonRepository>();
-            var repo13 = unitOfWork1.GetRepository<Person, DefaultRepository>();
+            var unitOfWorks = new IUnitOfWork[]
+            {
+                provider.GetService<IUnitOfWork>(),
+                provider.GetService<IUnitOfWork<CustomEFContext>>(),
+                provider.GetService<IUnitOfWorkFactory>().GetUnitOfWork<CustomEFContext>(),
+            };
 
-            var unitOfWork2 = provider.GetService<IUnitOfWork<CustomEFContext>>();
-            var repo21 = unitOfWork2.GetRepository<Person>();
-            var repo22 = unitOfWork2.GetRepository<Person, IPersonRepository>();
-            var repo23 = unitOfWork2.GetRepository<Person, DefaultRepository>();
+            Assert.DoesNotContain(unitOfWorks, x => x == null);
+            foreach (var unitOfWork in unitOfWorks)
+            {
+                var repo1 = unitOfWork.GetRepository<Person>();
+                var repo3 = unitOfWork.GetRepository<Person, DefaultRepository>();
+                var repo2 = unitOfWork.GetRepository<Person, IPersonRepository>();
+                Assert.NotNull(repo1);
+                Assert.NotNull(repo2);
+                Assert.NotNull(repo3);
+            }
+
+            unitOfWorks.ToList().ForEach(x => x.Dispose());
         }
 
         [Fact]
-        public void ResolveDependenciesSuccessfully2()
+        public void ResolveDependenciesSuccessfully()
         {
             // Arrange
+            serviceCollection.AddScoped<IRepository<Person>, DefaultRepository>();
+            serviceCollection.AddScoped<DefaultRepository>();
             serviceCollection.AddScoped<IDbContext, CustomContext>();
             serviceCollection.AddUnitOfWork();
             serviceCollection.AddUnitOfWork<CustomContext>();
             var provider = serviceCollection.BuildServiceProvider();
 
             // Act / Assert
-            var unitOfWork1 = provider.GetService<IUnitOfWork>();
-            var repo11 = unitOfWork1.GetRepository<Person>();
-            var repo13 = unitOfWork1.GetRepository<Person, DefaultRepository>();
+            var unitOfWorks = new IUnitOfWork[]
+            {
+                provider.GetService<IUnitOfWork>(),
+                provider.GetService<IUnitOfWork<CustomContext>>(),
+                provider.GetService<IUnitOfWorkFactory>().GetUnitOfWork<CustomContext>(),
+            };
 
-            var unitOfWork2 = provider.GetService<IUnitOfWork<CustomContext>>();
-            var repo21 = unitOfWork2.GetRepository<Person>();
-            var repo23 = unitOfWork2.GetRepository<Person, DefaultRepository>();
+            Assert.DoesNotContain(unitOfWorks, x => x == null);
+            foreach (var unitOfWork in unitOfWorks)
+            {
+                var repo1 = unitOfWork.GetRepository<Person>();
+                var repo2 = unitOfWork.GetRepository<Person, DefaultRepository>();
+                Assert.NotNull(repo1);
+                Assert.NotNull(repo2);
+            }
+
+            unitOfWorks.ToList().ForEach(x => x.Dispose());
+        }
+
+        [Fact]
+        public void AddEFUnitOfWorkWithoutUnnessecaryDuplications()
+        {
+            // Act / Assert
+            serviceCollection.AddEFUnitOfWork();
+            Assert.Equal(6, serviceCollection.Count);
+
+            serviceCollection.AddEFUnitOfWork<EFContext>();
+            Assert.Equal(8, serviceCollection.Count);
+
+            serviceCollection.AddEFUnitOfWork<EFContext>();
+            Assert.Equal(8, serviceCollection.Count);
+
+            serviceCollection.AddEFUnitOfWork<EFContext, EFContext>();
+            Assert.Equal(8, serviceCollection.Count);
+
+            serviceCollection.AddEFUnitOfWork<EFContext, EFContext, EFContext>();
+            Assert.Equal(8, serviceCollection.Count);
+
+            serviceCollection.AddEFUnitOfWork<EFContext, CustomEFContext>();
+            Assert.Equal(10, serviceCollection.Count);
+        }
+
+        [Fact]
+        public void AddUnitOfWorkWithoutUnnessecaryDuplications()
+        {
+            // Act / Assert
+            serviceCollection.AddUnitOfWork();
+            Assert.Equal(3, serviceCollection.Count);
+
+            serviceCollection.AddUnitOfWork<CustomContext>();
+            Assert.Equal(6, serviceCollection.Count);
+
+            serviceCollection.AddUnitOfWork<CustomContext>();
+            Assert.Equal(6, serviceCollection.Count);
+
+            serviceCollection.AddUnitOfWork<CustomContext, CustomContext>();
+            Assert.Equal(6, serviceCollection.Count);
+
+            serviceCollection.AddUnitOfWork<CustomContext, CustomContext, CustomContext>();
+            Assert.Equal(6, serviceCollection.Count);
         }
     }
 }
