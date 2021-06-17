@@ -4,7 +4,7 @@ namespace SI.UnitOfWork
 {
     public interface IRepositoryFactory
     {
-        IRepository<TEntity> GetRepository<TEntity>()
+        IRepository<TEntity>? GetRepository<TEntity>()
             where TEntity : class;
 
         TRepository GetRepository<TEntity, TRepository>()

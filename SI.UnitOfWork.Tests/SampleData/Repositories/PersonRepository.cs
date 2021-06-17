@@ -1,10 +1,11 @@
-﻿using SI.UnitOfWork.Tests.SampleData.Entities;
+﻿using SI.UnitOfWork.Interfaces;
+using SI.UnitOfWork.Tests.SampleData.Entities;
 
 namespace SI.UnitOfWork.Tests.SampleData.Repositories
 {
-    public class PersonRepository : EFRepository<Person>, IPersonRepository
+    public class DefaultPersonRepository : DefaultRepository, IPersonRepository
     {
-        public PersonRepository(EFContext dbContext)
+        public DefaultPersonRepository(IDbContext dbContext)
             : base(dbContext)
         {
         }
@@ -12,6 +13,14 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
         public string CustomMethod()
         {
             return "Hello " + nameof(CustomMethod);
+        }
+    }
+
+    public class EFPersonRepository : DefaultPersonRepository
+    {
+        public EFPersonRepository(EFContext dbContext)
+            : base(dbContext)
+        {
         }
     }
 

@@ -1,5 +1,7 @@
 ﻿using SI.UnitOfWork.Interfaces;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace SI.UnitOfWork
 {
@@ -15,10 +17,19 @@ namespace SI.UnitOfWork
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public override IRepository<TEntity> GetRepository<TEntity>()
+        public override IRepository<TEntity>? GetRepository<TEntity>()
         {
             var repository = serviceProvider.GetService(typeof(IRepository<TEntity>));
-            return (IRepository<TEntity>)repository;
+            if (repository == null)
+            {
+                var type = Assembly.GetCallingAssembly().GetTypes().SingleOrDefault(x => x.IsInterface && x.GetInterfaces().Contains(typeof(IRepository<TEntity>)));
+                if (type != null)
+                {
+                    repository = serviceProvider.GetService(type);
+                }
+            }
+
+            return (IRepository<TEntity>?)repository;
         }
 
         public override TRepository GetRepository<TEntity, TRepository>()

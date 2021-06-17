@@ -17,7 +17,7 @@ namespace SI.UnitOfWork
 
         protected IDbContext DbContext { get; }
 
-        public abstract IRepository<TEntity> GetRepository<TEntity>()
+        public abstract IRepository<TEntity>? GetRepository<TEntity>()
             where TEntity : class;
 
         public abstract TRepository GetRepository<TEntity, TRepository>()

@@ -88,7 +88,7 @@ namespace SI.UnitOfWork.Tests
 
             var count = await repository.CountAsync();
 
-            var expectedCount = DbUtilities.PersonSeed.Count() + persons.Length + 1;
+            var expectedCount = DbUtilities.PersonSeed.Count + persons.Length + 1;
             Assert.Equal(expectedCount, count);
             Assert.NotEqual(default, person.Id);
             Assert.NotEqual(default, persons[0].Id);

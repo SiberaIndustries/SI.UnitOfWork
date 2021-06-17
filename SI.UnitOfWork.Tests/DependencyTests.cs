@@ -22,7 +22,7 @@ namespace SI.UnitOfWork.Tests
         public void ResolveEFDependenciesSuccessfully()
         {
             // Arrange
-            serviceCollection.AddScoped<IPersonRepository, PersonRepository>();
+            serviceCollection.AddScoped<IPersonRepository, EFPersonRepository>();
             serviceCollection.AddScoped<DefaultRepository>();
             serviceCollection.AddDbContext<EFContext>(x => x.UseInMemoryDatabase("InMemory1"));
             serviceCollection.AddDbContext<CustomEFContext>(x => x.UseInMemoryDatabase("InMemory2"));
@@ -56,7 +56,7 @@ namespace SI.UnitOfWork.Tests
         public void ResolveDependenciesSuccessfully()
         {
             // Arrange
-            serviceCollection.AddScoped<IRepository<Person>, DefaultRepository>();
+            serviceCollection.AddScoped<IPersonRepository, DefaultPersonRepository>();
             serviceCollection.AddScoped<DefaultRepository>();
             serviceCollection.AddScoped<IDbContext, CustomContext>();
             serviceCollection.AddUnitOfWork();
@@ -76,8 +76,10 @@ namespace SI.UnitOfWork.Tests
             {
                 var repo1 = unitOfWork.GetRepository<Person>();
                 var repo2 = unitOfWork.GetRepository<Person, DefaultRepository>();
+                var repo3 = unitOfWork.GetRepository<Person, IPersonRepository>();
                 Assert.NotNull(repo1);
                 Assert.NotNull(repo2);
+                Assert.NotNull(repo3);
             }
 
             unitOfWorks.ToList().ForEach(x => x.Dispose());
