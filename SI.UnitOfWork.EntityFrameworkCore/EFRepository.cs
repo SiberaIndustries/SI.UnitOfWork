@@ -16,8 +16,8 @@ namespace SI.UnitOfWork
 
         protected DbSet<TEntity> DbSet { get; }
 
-        public virtual Task<TEntity?> FindAsync(params object[]? keyValues) =>
-            DbSet.FindAsync(keyValues, default).AsTask();
+        public virtual Task<TEntity?> FindAsync(object?[]? keyValues, CancellationToken ct = default) =>
+            DbSet.FindAsync(keyValues, ct).AsTask();
 
         public virtual Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<TEntity, object>>? orderBy = null, CancellationToken ct = default)
         {
@@ -128,7 +128,7 @@ namespace SI.UnitOfWork
 
         public virtual async Task DeleteAsync(object id, CancellationToken ct = default)
         {
-            var entity = await FindAsync(id).ConfigureAwait(false);
+            var entity = await FindAsync(new[] { id }, ct).ConfigureAwait(false);
             if (entity != null)
             {
                 await DeleteAsync(entity, ct).ConfigureAwait(false);

@@ -5,7 +5,7 @@ namespace SI.UnitOfWork
     public interface IRepository<TEntity>
         where TEntity : class
     {
-        Task<TEntity?> FindAsync(params object[]? keyValues);
+        Task<TEntity?> FindAsync(object?[]? keyValues, CancellationToken ct = default);
 
         Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<TEntity, object>>? orderBy = null, CancellationToken ct = default);
 

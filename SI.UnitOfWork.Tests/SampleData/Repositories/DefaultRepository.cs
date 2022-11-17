@@ -33,7 +33,7 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
         public Task<bool> ExistsAsync(Expression<Func<Person, bool>> selector = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
-        public Task<Person> FindAsync(params object[] keyValues) =>
+        public Task<Person> FindAsync(object[] keyValues, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
         public Task<IEnumerable<Person>> GetAllAsync(Expression<Func<Person, bool>> predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<Person, object>> orderBy = null, CancellationToken ct = default) =>

@@ -33,7 +33,7 @@ namespace SI.UnitOfWork.Tests
         [InlineData(3, false)]
         public async Task FindExists(int id, bool exists)
         {
-            var result1 = await repository.FindAsync(id.ToGuid());
+            var result1 = await repository.FindAsync(new object[] { id.ToGuid() });
             var result2 = await repository.ExistsAsync(x => x.Id.Equals(id.ToGuid()));
             Assert.Equal(exists, result1 != null);
             Assert.Equal(exists, result2);
