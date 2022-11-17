@@ -13,6 +13,10 @@ namespace SI.UnitOfWork
 
         Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<TEntity, object>>? orderBy = null, CancellationToken ct = default);
 
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+        IAsyncEnumerable<TEntity> GetAllAsyncEnumerable(Expression<Func<TEntity, bool>>? predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<TEntity, object>>? orderBy = null, CancellationToken ct = default);
+
+#endif
         Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
 
         Task<long> LongCountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
@@ -22,7 +26,7 @@ namespace SI.UnitOfWork
         Task<T> MaxAsync<T>(Expression<Func<TEntity, T>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
 
         Task<TEntity> MinAsync<T>(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
-
+        
         Task<T> MinAsync<T>(Expression<Func<TEntity, T>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
 
         Task<decimal> AverageAsync(Expression<Func<TEntity, decimal>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);

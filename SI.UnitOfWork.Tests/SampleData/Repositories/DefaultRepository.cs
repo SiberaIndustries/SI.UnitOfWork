@@ -39,6 +39,9 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
         public Task<IEnumerable<Person>> GetAllAsync(Expression<Func<Person, bool>> predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<Person, object>> orderBy = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
+        public IAsyncEnumerable<Person> GetAllAsyncEnumerable(Expression<Func<Person, bool>> predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<Person, object>> orderBy = null, CancellationToken ct = default) =>
+            throw new NotImplementedException();
+
         public Task InsertAsync(Person entity, CancellationToken ct = default) =>
             throw new NotImplementedException();
 

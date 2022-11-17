@@ -51,6 +51,35 @@ namespace SI.UnitOfWork
             return Task.FromResult(query.AsEnumerable());
         }
 
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+        public IAsyncEnumerable<TEntity> GetAllAsyncEnumerable(Expression<Func<TEntity, bool>>? predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<TEntity, object>>? orderBy = null, CancellationToken ct = default)
+        {
+            IQueryable<TEntity> query = DbSet;
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (ignoreQueryFilters)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            if (orderBy != null)
+            {
+                query = query.OrderBy(orderBy);
+            }
+
+            query = query.Skip(pageIndex * pageSize).Take(pageSize);
+            return query.AsAsyncEnumerable();
+        }
+
+#endif
         public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
             ? DbSet.CountAsync(ct)
             : DbSet.CountAsync(predicate, ct);
