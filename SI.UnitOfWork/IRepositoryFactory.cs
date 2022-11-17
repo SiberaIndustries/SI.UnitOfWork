@@ -9,7 +9,7 @@ namespace SI.UnitOfWork
 
         TRepository GetRepository<TEntity, TRepository>()
             where TEntity : class
-            where TRepository : IRepository<TEntity>;
+            where TRepository : class, IRepository<TEntity>;
     }
 
     public interface IRepositoryFactory<TContext> : IRepositoryFactory

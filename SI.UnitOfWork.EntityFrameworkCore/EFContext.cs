@@ -95,8 +95,6 @@ namespace SI.UnitOfWork
                 entityTypeBuilder.Property(nameof(IConcurrentEntity<object>.ConcurrencyToken)).HasColumnName("xmin").HasColumnType("xid").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
             }
 
-            entityTypeBuilder.IsMemoryOptimized(interfaces.Contains(typeof(IPerformanceCritical)));
-
             // Soft deletion / Multi tenant entities
             if (interfaces.Contains(typeof(ISoftDeleteEntity)) && interfaces.Contains(typeof(IMultiTenantEntity)))
             {
@@ -208,7 +206,7 @@ namespace SI.UnitOfWork
 
             // Apply Entity type configuration to all relevant assemblies containing types which implement IEntityTypeConfiguration
             AppDomain.CurrentDomain.GetAssemblies()
-                .Where(x => !x.FullName.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase) && !x.FullName.StartsWith("System.", StringComparison.OrdinalIgnoreCase) && !x.FullName.StartsWith("Npgsql.", StringComparison.OrdinalIgnoreCase))
+                .Where(x => !x.FullName!.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase) && !x.FullName.StartsWith("System.", StringComparison.OrdinalIgnoreCase) && !x.FullName.StartsWith("Npgsql.", StringComparison.OrdinalIgnoreCase))
                 .Where(x => x.GetTypes().Any(x => x.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))))
                 .ToList().ForEach(assembly => modelBuilder.ApplyConfigurationsFromAssembly(assembly));
 

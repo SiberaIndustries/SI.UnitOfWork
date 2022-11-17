@@ -21,7 +21,7 @@ namespace SI.UnitOfWork
 
         protected DbSet<TEntity> DbSet { get; }
 
-        public virtual Task<TEntity> FindAsync(params object[]? keyValues) =>
+        public virtual Task<TEntity?> FindAsync(params object[]? keyValues) =>
             DbSet.FindAsync(keyValues, default).AsTask();
 
         public virtual Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<TEntity, object>>? orderBy = null, CancellationToken ct = default)
@@ -59,19 +59,27 @@ namespace SI.UnitOfWork
             ? DbSet.LongCountAsync(ct)
             : DbSet.LongCountAsync(predicate, ct);
 
-        public virtual Task<T> MaxAsync<T>(Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, T>>? selector = null, CancellationToken ct = default) => predicate == null
+        public virtual Task<TEntity> MaxAsync<T>(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
+            ? DbSet.MaxAsync(ct)
+            : DbSet.Where(predicate).MaxAsync(ct);
+
+        public virtual Task<T> MaxAsync<T>(Expression<Func<TEntity, T>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
             ? DbSet.MaxAsync(selector, ct)
             : DbSet.Where(predicate).MaxAsync(selector, ct);
 
-        public virtual Task<T> MinAsync<T>(Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, T>>? selector = null, CancellationToken ct = default) => predicate == null
+        public virtual Task<TEntity> MinAsync<T>(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
+            ? DbSet.MinAsync(ct)
+            : DbSet.Where(predicate).MinAsync(ct);
+
+        public virtual Task<T> MinAsync<T>(Expression<Func<TEntity, T>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
             ? DbSet.MinAsync(selector, ct)
             : DbSet.Where(predicate).MinAsync(selector, ct);
 
-        public virtual Task<decimal> AverageAsync(Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, decimal>>? selector = null, CancellationToken ct = default) => predicate == null
+        public virtual Task<decimal> AverageAsync(Expression<Func<TEntity, decimal>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
             ? DbSet.AverageAsync(selector, ct)
             : DbSet.Where(predicate).AverageAsync(selector, ct);
 
-        public virtual Task<decimal> SumAsync(Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, decimal>>? selector = null, CancellationToken ct = default) => predicate == null
+        public virtual Task<decimal> SumAsync(Expression<Func<TEntity, decimal>> selector, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default) => predicate == null
             ? DbSet.SumAsync(selector, ct)
             : DbSet.Where(predicate).SumAsync(selector, ct);
 

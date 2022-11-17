@@ -4,7 +4,7 @@ using System;
 
 namespace SI.UnitOfWork.Tests.SampleData.Entities
 {
-    public class Comment : LazyEntity, ISoftDeleteEntity, IPerformanceCritical, IAuditableEntity
+    public class Comment : LazyEntity, ISoftDeleteEntity, IAuditableEntity
     {
         private Person person;
 

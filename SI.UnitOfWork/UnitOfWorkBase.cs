@@ -22,7 +22,7 @@ namespace SI.UnitOfWork
 
         public abstract TRepository GetRepository<TEntity, TRepository>()
             where TEntity : class
-            where TRepository : IRepository<TEntity>;
+            where TRepository : class, IRepository<TEntity>;
 
         public virtual int SaveChanges() =>
             DbContext.SaveChanges();
