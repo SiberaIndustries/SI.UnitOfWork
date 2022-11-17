@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SI.UnitOfWork.Interfaces
+﻿namespace SI.UnitOfWork.Interfaces
 {
     public interface IEntity<TKey>
     {

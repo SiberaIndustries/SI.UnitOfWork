@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SI.UnitOfWork.Interfaces;
-using System;
 
 namespace SI.UnitOfWork
 {
