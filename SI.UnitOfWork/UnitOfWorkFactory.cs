@@ -10,7 +10,7 @@ namespace SI.UnitOfWork
 
         public UnitOfWorkFactory(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            this.serviceProvider = serviceProvider;
         }
 
         public IUnitOfWork<TContext> GetUnitOfWork<TContext>()

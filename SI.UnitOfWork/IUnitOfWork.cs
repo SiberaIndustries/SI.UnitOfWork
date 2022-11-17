@@ -12,7 +12,7 @@ namespace SI.UnitOfWork
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }
 
-    public interface IUnitOfWork<TContext> : IUnitOfWork, IRepositoryFactory<TContext>
+    public interface IUnitOfWork<out TContext> : IUnitOfWork, IRepositoryFactory<TContext>
         where TContext : IDbContext
     {
     }

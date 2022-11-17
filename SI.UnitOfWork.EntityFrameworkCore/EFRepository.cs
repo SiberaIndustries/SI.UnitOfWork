@@ -13,7 +13,7 @@ namespace SI.UnitOfWork
     {
         public EFRepository(DbContext dbContext)
         {
-            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            DbContext = dbContext;
             DbSet = DbContext.Set<TEntity>();
         }
 

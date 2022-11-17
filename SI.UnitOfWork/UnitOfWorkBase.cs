@@ -8,14 +8,15 @@ namespace SI.UnitOfWork
     public abstract class UnitOfWorkBase<TContext> : IUnitOfWork<TContext>
         where TContext : IDbContext
     {
+        private readonly TContext dbContext;
         private bool disposed;
 
         protected UnitOfWorkBase(TContext dbContext)
         {
-            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.dbContext = dbContext;
         }
 
-        protected IDbContext DbContext { get; }
+        public virtual TContext DbContext => dbContext;
 
         public abstract IRepository<TEntity>? GetRepository<TEntity>()
             where TEntity : class;

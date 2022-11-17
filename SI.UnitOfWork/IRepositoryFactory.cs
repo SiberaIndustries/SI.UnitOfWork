@@ -12,8 +12,9 @@ namespace SI.UnitOfWork
             where TRepository : class, IRepository<TEntity>;
     }
 
-    public interface IRepositoryFactory<TContext> : IRepositoryFactory
+    public interface IRepositoryFactory<out TContext> : IRepositoryFactory
         where TContext : IDbContext
     {
+        TContext DbContext { get; }
     }
 }
