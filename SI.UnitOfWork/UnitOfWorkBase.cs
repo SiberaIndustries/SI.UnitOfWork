@@ -1,28 +1,26 @@
 ﻿using SI.UnitOfWork.Interfaces;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SI.UnitOfWork
 {
     public abstract class UnitOfWorkBase<TContext> : IUnitOfWork<TContext>
         where TContext : IDbContext
     {
+        private readonly TContext dbContext;
         private bool disposed;
 
         protected UnitOfWorkBase(TContext dbContext)
         {
-            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.dbContext = dbContext;
         }
 
-        protected IDbContext DbContext { get; }
+        public virtual TContext DbContext => dbContext;
 
         public abstract IRepository<TEntity>? GetRepository<TEntity>()
             where TEntity : class;
 
         public abstract TRepository GetRepository<TEntity, TRepository>()
             where TEntity : class
-            where TRepository : IRepository<TEntity>;
+            where TRepository : class, IRepository<TEntity>;
 
         public virtual int SaveChanges() =>
             DbContext.SaveChanges();

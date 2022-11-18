@@ -15,7 +15,7 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
             _ = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public Task<decimal> AverageAsync(Expression<Func<Person, bool>> predicate = null, Expression<Func<Person, decimal>> selector = null, CancellationToken ct = default) =>
+        public Task<decimal> AverageAsync(Expression<Func<Person, decimal>> selector, Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
         public Task<int> CountAsync(Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
@@ -33,10 +33,13 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
         public Task<bool> ExistsAsync(Expression<Func<Person, bool>> selector = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
-        public Task<Person> FindAsync(params object[] keyValues) =>
+        public Task<Person> FindAsync(object[] keyValues, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
         public Task<IEnumerable<Person>> GetAllAsync(Expression<Func<Person, bool>> predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<Person, object>> orderBy = null, CancellationToken ct = default) =>
+            throw new NotImplementedException();
+
+        public IAsyncEnumerable<Person> GetAllAsyncEnumerable(Expression<Func<Person, bool>> predicate = null, int pageIndex = 0, int pageSize = int.MaxValue, bool disableTracking = true, bool ignoreQueryFilters = false, Expression<Func<Person, object>> orderBy = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
         public Task InsertAsync(Person entity, CancellationToken ct = default) =>
@@ -48,13 +51,19 @@ namespace SI.UnitOfWork.Tests.SampleData.Repositories
         public Task<long> LongCountAsync(Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
-        public Task<T> MaxAsync<T>(Expression<Func<Person, bool>> predicate = null, Expression<Func<Person, T>> selector = null, CancellationToken ct = default) =>
+        public Task<Person> MaxAsync<T>(Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
-        public Task<T> MinAsync<T>(Expression<Func<Person, bool>> predicate = null, Expression<Func<Person, T>> selector = null, CancellationToken ct = default) =>
+        public Task<T> MaxAsync<T>(Expression<Func<Person, T>> selector, Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
-        public Task<decimal> SumAsync(Expression<Func<Person, bool>> predicate = null, Expression<Func<Person, decimal>> selector = null, CancellationToken ct = default) =>
+        public Task<Person> MinAsync<T>(Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
+            throw new NotImplementedException();
+
+        public Task<T> MinAsync<T>(Expression<Func<Person, T>> selector, Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
+            throw new NotImplementedException();
+
+        public Task<decimal> SumAsync(Expression<Func<Person, decimal>> selector, Expression<Func<Person, bool>> predicate = null, CancellationToken ct = default) =>
             throw new NotImplementedException();
 
         public Task UpdateAsync(Person entity, CancellationToken ct = default) =>

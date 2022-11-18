@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SI.UnitOfWork.Tests.SampleData.Contexts
 {
-    public class CustomContext : IDbContext
+    public sealed class CustomContext : IDbContext
     {
         public int SaveChanges()
         {

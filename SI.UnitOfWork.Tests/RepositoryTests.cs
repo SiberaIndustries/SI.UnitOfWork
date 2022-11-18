@@ -33,7 +33,7 @@ namespace SI.UnitOfWork.Tests
         [InlineData(3, false)]
         public async Task FindExists(int id, bool exists)
         {
-            var result1 = await repository.FindAsync(id.ToGuid());
+            var result1 = await repository.FindAsync(new object[] { id.ToGuid() });
             var result2 = await repository.ExistsAsync(x => x.Id.Equals(id.ToGuid()));
             Assert.Equal(exists, result1 != null);
             Assert.Equal(exists, result2);
@@ -44,6 +44,18 @@ namespace SI.UnitOfWork.Tests
         {
             var result = await repository.GetAllAsync();
             Assert.Equal(DbUtilities.PersonSeed, result);
+        }
+
+        [Fact]
+        public async Task GetAllAsyncEnumerable()
+        {
+            var result = repository.GetAllAsyncEnumerable();
+
+            var count = 0;
+            await foreach (var x in result)
+            {
+                Assert.Equal(++count, x.Id.ToInt());
+            }
         }
 
         [Fact]
@@ -58,18 +70,31 @@ namespace SI.UnitOfWork.Tests
         [Fact]
         public async Task MinMaxAverageSum()
         {
-            var result1 = await repository.MinAsync(selector: x => x.Birthday);
-            var result2 = await repository.MaxAsync(selector: x => x.Birthday);
+            var resultMin1 = await repository.MinAsync(x => x.Birthday);
+            var resultMin2 = await repository.MinAsync(x => x.Id, x => x.Birthday < DateTime.Now);
 
-            var result3 = await repository.AverageAsync(selector: x => x.Birthday.Ticks);
-            var result4 = DbUtilities.PersonSeed.Average(x => x.Birthday.Ticks);
+            var resultMax1 = await repository.MaxAsync(x => x.Birthday);
+            var resultMax2 = await repository.MaxAsync(x => x.Id, x => x.Birthday < DateTime.Now);
 
-            var result5 = await repository.SumAsync(selector: x => x.Birthday.Ticks);
-            var result6 = DbUtilities.PersonSeed.Sum(x => x.Birthday.Ticks);
+            var resultAvg1 = await repository.AverageAsync(x => x.Birthday.Ticks);
+            var resultAvg2 = await repository.AverageAsync(x => x.Birthday.Ticks, x => x.Birthday < DateTime.Now);
+            var resultAvg3 = DbUtilities.PersonSeed.Average(x => x.Birthday.Ticks);
 
-            Assert.True(result1 < result2);
-            Assert.Equal(new decimal(result4), result3);
-            Assert.Equal(new decimal(result6), result5);
+            var resultSum1 = await repository.SumAsync(x => x.Birthday.Ticks);
+            var resultSum2 = await repository.SumAsync(x => x.Birthday.Ticks, x => x.Birthday < DateTime.Now);
+            var resultSum3 = DbUtilities.PersonSeed.Sum(x => x.Birthday.Ticks);
+
+            Assert.Equal(new DateTime(1988, 1, 1), resultMin1);
+            Assert.Equal(1, resultMin2.ToInt());
+
+            Assert.Equal(new DateTime(1990, 6, 6), resultMax1);
+            Assert.Equal(2, resultMax2.ToInt());
+
+            Assert.Equal(new decimal(resultAvg3), resultAvg1);
+            Assert.Equal(new decimal(resultAvg3), resultAvg2);
+
+            Assert.Equal(new decimal(resultSum3), resultSum1);
+            Assert.Equal(new decimal(resultSum3), resultSum2);
         }
 
         [Fact]

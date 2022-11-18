@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace SI.UnitOfWork.Interfaces
+﻿namespace SI.UnitOfWork.Interfaces
 {
     public interface IDbContext : IDisposable
     {

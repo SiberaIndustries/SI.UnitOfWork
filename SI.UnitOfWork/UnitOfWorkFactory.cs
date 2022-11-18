@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SI.UnitOfWork.Interfaces;
-using System;
 
 namespace SI.UnitOfWork
 {
@@ -10,7 +9,7 @@ namespace SI.UnitOfWork
 
         public UnitOfWorkFactory(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            this.serviceProvider = serviceProvider;
         }
 
         public IUnitOfWork<TContext> GetUnitOfWork<TContext>()

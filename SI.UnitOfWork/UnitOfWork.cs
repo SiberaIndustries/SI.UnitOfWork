@@ -1,6 +1,4 @@
 ﻿using SI.UnitOfWork.Interfaces;
-using System;
-using System.Linq;
 using System.Reflection;
 
 namespace SI.UnitOfWork
@@ -35,7 +33,7 @@ namespace SI.UnitOfWork
         public override TRepository GetRepository<TEntity, TRepository>()
         {
             var repository = serviceProvider.GetService(typeof(TRepository));
-            return (TRepository)repository;
+            return (TRepository)repository!;
         }
 
         protected override void Dispose(bool disposing)
