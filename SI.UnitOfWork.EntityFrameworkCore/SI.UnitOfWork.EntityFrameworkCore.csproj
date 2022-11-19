@@ -1,52 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Common">
-    <TargetFrameworks>net6.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+	<TargetFrameworks>net6.0</TargetFrameworks>
+	<LangVersion>latest</LangVersion>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Version>2.0.0</Version>
+	<AssemblyVersion>2.0.0.0</AssemblyVersion>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Label="Package">
-    <PackageId>SI.UnitOfWork.EntityFrameworkCore</PackageId>
-    <Authors>Tobias Sibera</Authors>
-    <Company>Sibera Industries</Company>
-    <Description>EntityFrameworkCore plugin for the lightweight and flexible Repository / UnitOfWork framework.</Description>
-    <PackageIcon>icon.png</PackageIcon>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/SiberaIndustries/SI.UnitOfWork</RepositoryUrl>
-    <PackageReleaseNotes>https://github.com/SiberaIndustries/SI.UnitOfWork/releases</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/SiberaIndustries/SI.UnitOfWork</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>AspNet;ASP.Net;AspNetCore;Core;Entity-Framework-Core;EF;EFCore;Data;ORM;UnitOfWork;Repository;Repositories</PackageTags>
+	<PackageId>SI.UnitOfWork.EntityFrameworkCore</PackageId>
+	<Authors>Tobias Sibera</Authors>
+	<Company>Sibera Industries</Company>
+	<Description>EntityFrameworkCore plugin for the lightweight and flexible Repository / UnitOfWork framework.</Description>
+	<PackageIcon>icon.png</PackageIcon>
+	<RepositoryType>git</RepositoryType>
+	<RepositoryUrl>https://github.com/SiberaIndustries/SI.UnitOfWork</RepositoryUrl>
+	<PackageReleaseNotes>https://github.com/SiberaIndustries/SI.UnitOfWork/releases</PackageReleaseNotes>
+	<PackageProjectUrl>https://github.com/SiberaIndustries/SI.UnitOfWork</PackageProjectUrl>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageTags>AspNet;ASP.Net;AspNetCore;Core;Entity-Framework-Core;EF;EFCore;Data;ORM;UnitOfWork;Repository;Repositories</PackageTags>
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup Label="Code Analysis">
-    <Features>IOperation</Features>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <CodeAnalysisRuleSet>..\code-analysis.ruleset</CodeAnalysisRuleSet>
+	<Features>IOperation</Features>
+	<EnableNETAnalyzers>true</EnableNETAnalyzers>
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	<CodeAnalysisRuleSet>..\code-analysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="*" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="*" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="*" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="*" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="*" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SI.UnitOfWork\SI.UnitOfWork.csproj" />
+	<ProjectReference Include="..\SI.UnitOfWork\SI.UnitOfWork.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\icon.png" Link="icon.png" Visible="false" Pack="true" PackagePath="" />
+	<None Include="..\icon.png" Link="icon.png" Visible="false" Pack="true" PackagePath="" />
+	<None Include="..\README.md" Visible="false" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
