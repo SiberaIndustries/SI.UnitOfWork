@@ -15,6 +15,9 @@ namespace SI.UnitOfWork
 
         public virtual TContext DbContext => dbContext;
 
+#if NET6_0_OR_GREATER
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Types might be removed")]
+#endif
         public abstract IRepository<TEntity>? GetRepository<TEntity>()
             where TEntity : class;
 

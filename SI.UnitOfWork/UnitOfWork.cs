@@ -15,6 +15,9 @@ namespace SI.UnitOfWork
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
+#if NET6_0_OR_GREATER
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Types might be removed")]
+#endif
         public override IRepository<TEntity>? GetRepository<TEntity>()
         {
             var repository = serviceProvider.GetService(typeof(IRepository<TEntity>));

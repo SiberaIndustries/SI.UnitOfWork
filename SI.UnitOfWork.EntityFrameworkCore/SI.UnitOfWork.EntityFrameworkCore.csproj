@@ -2,6 +2,7 @@
 
   <PropertyGroup Label="Common">
 	<TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+	<IsTrimmable>false</IsTrimmable>
 	<LangVersion>latest</LangVersion>
 	<Nullable>enable</Nullable>
 	<ImplicitUsings>enable</ImplicitUsings>

@@ -4,6 +4,9 @@ namespace SI.UnitOfWork
 {
     public interface IRepositoryFactory
     {
+#if NET6_0_OR_GREATER
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Types might be removed")]
+#endif
         IRepository<TEntity>? GetRepository<TEntity>()
             where TEntity : class;
 
